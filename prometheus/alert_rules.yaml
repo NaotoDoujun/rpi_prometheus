@@ -1,0 +1,59 @@
+groups:
+- name: rpi-exporter
+  rules:
+  - alert: HighCpuLoad
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      firing_text: CPU load is > 80%
+      resolved_text: CPU load rate down
+  - alert: UnderVoltageDetected
+    expr: rpi_throttled{component="under_voltage_detected"} > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+     firing_text: Under Voltage Detected
+     resolved_text: Under Voltage Fixed
+  - alert: ArmFrequencyCapped
+    expr: rpi_throttled{component="arm_frequency_capped"} > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+     firing_text: ARM Frequency Capped
+     resolved_text: ARM Frequency Done Cap
+  - alert: SoftTemperature
+    expr: rpi_throttled{component="soft_temperature"} > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+     firing_text: Soft Temperature Reached
+     resolved_text: Soft Temperature Fixed
+  - alert: OutOfMemory
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      firing_text: Node memory is filling up (< 10% left)
+      resolved_text: Memory rate down
+  - alert: OutOfDiskSpace
+    expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      firing_text: Disk is almost full (< 10% left)
+      resolved_text: Disk space rate down
+  - alert: HighCpuTemp
+    expr: rpi_temperature > 75
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+     firing_text: High CPU Temp VALUE = {{ $value }}℃
+     resolved_text: CPU Temp down
